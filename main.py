@@ -61,6 +61,7 @@ def next():
      #set the next song
     songs_list.selection_set(next_one)
 
+
 root=tk.Tk()
 mixer.init()
 # disable resize
