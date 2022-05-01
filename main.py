@@ -2,12 +2,11 @@
 import tkinter as tk
 import tkinter.font as font
 from PIL import ImageTk, Image
-from tkinter import filedialog
+from tkinter import filedialog, messagebox
 from pygame import mixer
 
 def play():
     song=songs_list.get(tk.ACTIVE)
-    song=song
     label = play_button["text"]
     if (label == "Play"):
         play_button.config(text="Pause")
@@ -18,6 +17,8 @@ def play():
         mixer.music.pause()
 
 def add_song():
+    global pos
+    pos = 1
     temp_song= filedialog.askopenfilenames(title="Pilih lagu", filetypes=(("mp3 Files","*.mp3"),))
     for s in temp_song:
         songs_list.insert(tk.END,s)
@@ -29,37 +30,38 @@ def delete_song():
     songs_list.delete(curr_song[0])
 
 def previous():
-    #to get the selected song index
-    previous_one=songs_list.curselection()
-    #to get the previous song index
-    previous_one=previous_one[0]-1
-    #to get the previous song
-    temp2=songs_list.get(previous_one)
-    temp2=temp2
-    mixer.music.load(temp2)
-    mixer.music.play()
-    songs_list.selection_clear(0,tk.ACTIVE)
-    #activate new song
-    songs_list.activate(previous_one)
-    #set the next song
-    songs_list.selection_set(previous_one)
+    global pos
+    pos = pos-1
+    if pos <= 0:
+        messagebox.showerror("Error", "Music Not Found")
+        pos = pos+1
+    else:
+        previous_one=songs_list.curselection()
+        previous_one=previous_one[0]-1
+        temp2=songs_list.get(previous_one)
+        mixer.music.load(temp2)
+        mixer.music.play()
+        songs_list.selection_clear(0,tk.ACTIVE)
+        songs_list.activate(previous_one)
+        songs_list.selection_set(previous_one)
 
 
 def next():
-    #to get the selected song index
+    global pos
     next_one=songs_list.curselection()
-    #to get the next song index
-    next_one=next_one[0]+1
-    #to get the next song 
-    temp=songs_list.get(next_one)
-    temp=temp
-    mixer.music.load(temp)
-    mixer.music.play()
-    songs_list.selection_clear(0,tk.END)
-    #activate newsong
-    songs_list.activate(next_one)
-     #set the next song
-    songs_list.selection_set(next_one)
+    count=songs_list.size()
+    pos = pos+1
+    if pos > count:
+        messagebox.showerror("Error", "End of list")
+        pos = pos-1
+    else:
+        next_one=next_one[0]+1
+        temp=songs_list.get(next_one)
+        mixer.music.load(temp)
+        mixer.music.play()
+        songs_list.selection_clear(0,tk.END)
+        songs_list.activate(next_one)
+        songs_list.selection_set(next_one)
 
 
 root=tk.Tk()
@@ -86,26 +88,25 @@ img = ImageTk.PhotoImage(Image.open("mp.png"))
 label = tk.Label(calc, image = img, width=200,height=150)
 label.pack()
 
-
-
 defined_font = font.Font(family='Helvetica')
+
 
 # play button
 play_button=tk.Button(root,text="Play",width =7, command=play)
 play_button['font']=defined_font
 play_button.place(x=240,y=570)
 
-# #previous button
+# previous button
 previous_button=tk.Button(root,text="Prev",width =7, command=previous)
 previous_button['font']=defined_font
 previous_button.place(x=150,y=570)
 
-# #nextbutton
+# nextbutton
 next_button=tk.Button(root,text="Next",width =7, command=next)
 next_button['font']=defined_font
 next_button.place(x=330,y=570)
 
-# #menu 
+# menu 
 my_menu=tk.Menu(root)
 root.config(menu=my_menu)
 add_song_menu=tk.Menu(my_menu)
